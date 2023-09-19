@@ -1,34 +1,36 @@
 const recursiveGenerator = (obj, fatherKey = '', level = 1) => {
 
     const reduce = (accumulator, currentValue) => {
-        const row = `${currentValue};${fatherKey};${level}`
+        const row = `${currentValue};${fatherKey};${level}`;
         if (!!obj[currentValue] && typeof obj[currentValue] === 'object') {
             if (Array.isArray(obj[currentValue]) && obj[currentValue][0]) {
                 accumulator.push(
                     typeof obj[currentValue][0] === 'object' ?
-                        { [row]: recursiveGenerator(obj[currentValue][0], currentValue, level + 1) } : row)
+                        { [row]: recursiveGenerator(obj[currentValue][0], currentValue, level + 1) } : row);
             } else {
-                accumulator.push({ [row]: recursiveGenerator(obj[currentValue], currentValue, level + 1) })
+                accumulator.push({ [row]: recursiveGenerator(obj[currentValue], currentValue, level + 1) });
             }
         } else {
-            accumulator.push(row)
+            accumulator.push(row);
         }
-        return accumulator
+        return accumulator;
     }
-    const flatMap = (obj) => {
-        if (!obj) { return }
+    
+    return Object.keys(obj).reduce(reduce, []).sort(sort).flatMap(flatMap).join(";\n");
+
+}
+
+const flatMap = (obj) => {
+        if (!obj) {
+            return [];
+        }
         if (typeof obj === 'string') {
-            return [obj]
+            return [obj];
         }
         if (Array.isArray(obj)) {
-            return obj
+            return obj;
         }
-        return [Object.keys(obj)[0], ...flatMap(obj[Object.keys(obj)[0]])]
-    }
-
-
-    return Object.keys(obj).reduce(reduce, []).sort(sort).flatMap(flatMap).join(";\n")
-
+        return [Object.keys(obj)[0], ...flatMap(obj[Object.keys(obj)[0]])];
 }
 
 
@@ -46,9 +48,9 @@ const sort = (a, b) => {
 }
 
 const generateCSVFromJSON = (JSONName = '') => {
-    const csv = recursiveGenerator(JSON.parse(window.getSelection().toString()) ?? {}, JSONName)
-    console.log(csv)
-    window.open('data:text/csv;charset=utf-8,' + encodeURI(csv))
+    const csv = recursiveGenerator(JSON.parse(window.getSelection().toString()) ?? {}, JSONName);
+    console.log(csv);
+    window.open('data:text/csv;charset=utf-8,' + encodeURI(csv));
 }
 
-generateCSVFromJSON()
+generateCSVFromJSON();
